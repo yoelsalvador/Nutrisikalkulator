@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Kebutuhan Nutrisi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .radio-item {
+            position: relative;
+        }
+
+        .radio-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .radio-item label {
+            display: block;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+
+        .radio-item input[type="radio"]:checked + label {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .activity-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .activity-item {
+            position: relative;
+        }
+
+        .activity-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .activity-item label {
+            display: block;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            margin-bottom: 0;
+        }
+
+        .activity-item input[type="radio"]:checked + label {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 2px solid #e0e0e0;
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.8em;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .result-card .value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .result-card .unit {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .macro-nutrients {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .macro-nutrients h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .macro-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .macro-item:nth-child(2) {
+            border-left-color: #28a745;
+        }
+
+        .macro-item:nth-child(3) {
+            border-left-color: #ffc107;
+        }
+
+        .macro-item:nth-child(4) {
+            border-left-color: #dc3545;
+        }
+
+        .macro-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .macro-value {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .meal-planner {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .meal-planner h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .meal-time {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .meal-time h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .meal-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .meal-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s ease;
+        }
+
+        .meal-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .meal-item-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .meal-item-details {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .bmi-status {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .bmi-kurus { background: #cce5ff; color: #0066cc; }
+        .bmi-normal { background: #d4edda; color: #155724; }
+        .bmi-gemuk { background: #fff3cd; color: #856404; }
+        .bmi-obesitas { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .radio-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍎 Kalkulator Kebutuhan Nutrisi</h1>
+        
+        <form id="nutritionForm">
+            <div class="form-group">
+                <label>Jenis Kelamin:</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="male" name="gender" value="male" required>
+                        <label for="male">👨 Laki-laki</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="female" name="gender" value="female" required>
+                        <label for="female">👩 Perempuan</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Usia (tahun):</label>
+                <input type="number" id="age" name="age" min="1" max="120" required>
+            </div>
+
+            <div class="form-group">
+                <label for="height">Tinggi Badan (cm):</label>
+                <input type="number" id="height" name="height" min="50" max="250" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label for="weight">Berat Badan (kg):</label>
+                <input type="number" id="weight" name="weight" min="20" max="300" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label>Tingkat Aktivitas:</label>
+                <div class="activity-group">
+                    <div class="activity-item">
+                        <input type="radio" id="sedentary" name="activity" value="1.2" required>
+                        <label for="sedentary">💺 Tidak aktif (pekerjaan duduk, tidak ada olahraga)</label>
+                    </div>
+                    <div class="activity-item">
+                        <input type="radio" id="light" name="activity" value="1.375" required>
+                        <label for="light">🚶 Aktivitas ringan (olahraga ringan 1-3 hari/minggu)</label>
+                    </div>
+                    <div class="activity-item">
+                        <input type="radio" id="moderate" name="activity" value="1.55" required>
+                        <label for="moderate">🏃 Aktivitas sedang (olahraga sedang 3-5 hari/minggu)</label>
+                    </div>
+                    <div class="activity-item">
+                        <input type="radio" id="heavy" name="activity" value="1.725" required>
+                        <label for="heavy">🏋️ Aktivitas berat (olahraga berat 6-7 hari/minggu)</label>
+                    </div>
+                    <div class="activity-item">
+                        <input type="radio" id="extreme" name="activity" value="1.9" required>
+                        <label for="extreme">💪 Aktivitas sangat berat (olahraga sangat berat atau pekerjaan fisik)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Tujuan:</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="maintain" name="goal" value="maintain" required>
+                        <label for="maintain">⚖️ Mempertahankan</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="lose" name="goal" value="lose" required>
+                        <label for="lose">📉 Menurunkan</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="gain" name="goal" value="gain" required>
+                        <label for="gain">📈 Menambah</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="meals">Jumlah Makan per Hari:</label>
+                <select id="meals" name="meals" required>
+                    <option value="">Pilih jumlah makan</option>
+                    <option value="3">3x Makan + 2 Snack</option>
+                    <option value="4">4x Makan + 1 Snack</option>
+                    <option value="5">5x Makan (Porsi Kecil)</option>
+                    <option value="6">6x Makan (Porsi Sangat Kecil)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="calculate-btn">🧮 Hitung Kebutuhan Nutrisi</button>
+        </form>
+
+        <div id="results" class="results">
+            <h2>📊 Hasil Perhitungan</h2>
+            <div class="result-grid">
+                <div class="result-card">
+                    <h3>BMI</h3>
+                    <div class="value" id="bmi-value">-</div>
+                    <div class="unit">kg/m²</div>
+                    <div id="bmi-status" class="bmi-status">-</div>
+                </div>
+                <div class="result-card">
+                    <h3>BMR</h3>
+                    <div class="value" id="bmr-value">-</div>
+                    <div class="unit">kkal/hari</div>
+                </div>
+                <div class="result-card">
+                    <h3>TDEE</h3>
+                    <div class="value" id="tdee-value">-</div>
+                    <div class="unit">kkal/hari</div>
+                </div>
+                <div class="result-card">
+                    <h3>Target Kalori</h3>
+                    <div class="value" id="target-value">-</div>
+                    <div class="unit">kkal/hari</div>
+                </div>
+            </div>
+            
+            <div class="macro-nutrients">
+                <h3>🍽️ Kebutuhan Makronutrien Harian</h3>
+                <div class="macro-item">
+                    <span class="macro-name">🍞 Karbohidrat</span>
+                    <span class="macro-value" id="carbs-value">- gram</span>
+                </div>
+                <div class="macro-item">
+                    <span class="macro-name">🥩 Protein</span>
+                    <span class="macro-value" id="protein-value">- gram</span>
+                </div>
+                <div class="macro-item">
+                    <span class="macro-name">🥑 Lemak</span>
+                    <span class="macro-value" id="fat-value">- gram</span>
+                </div>
+            </div>
+
+            <div class="meal-planner">
+                <h3>🍳 Rekomendasi Menu Harian</h3>
+                <div id="meal-schedule">
+                    <!-- Menu akan ditampilkan di sini -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Database makanan yang lebih lengkap
+        const foodDatabase = {
+            sarapan: [
+                { name: 'Nasi Uduk + Tempe', calories: 350, carbs: 45, protein: 15, fat: 12 },
+                { name: 'Roti Bakar + Telur', calories: 280, carbs: 25, protein: 15, fat: 12 },
+                { name: 'Bubur Ayam', calories: 220, carbs: 30, protein: 12, fat: 6 },
+                { name: 'Lontong Sayur', calories: 300, carbs: 40, protein: 10, fat: 8 },
+                { name: 'Nasi Gudeg', calories: 320, carbs: 42, protein: 12, fat: 10 },
+                { name: 'Oatmeal + Buah', calories: 250, carbs: 40, protein: 8, fat: 5 },
+                { name: 'Telur Dadar + Roti', calories: 300, carbs: 20, protein: 18, fat: 15 },
+                { name: 'Sereal + Susu', calories: 200, carbs: 30, protein: 10, fat: 5 },
+                { name: 'Pancake + Madu', calories: 280, carbs: 35, protein: 8, fat: 10 },
+                { name: 'Sandwich Ayam', calories: 320, carbs: 30, protein: 20, fat: 12 }
+            ],
+            siang: [
+                { name: 'Nasi + Ayam Goreng', calories: 500, carbs: 50, protein: 30, fat: 20 },
+                { name: 'Nasi + Rendang', calories: 550, carbs: 45, protein: 32, fat: 25 },
+                { name: 'Nasi + Ikan Bakar', calories: 450, carbs: 48, protein: 28, fat: 15 },
+                { name: 'Nasi + Pecel Lele', calories: 400, carbs: 45, protein: 25, fat: 18 },
+                { name: 'Nasi + Soto Ayam', calories: 380, carbs: 42, protein: 22, fat: 12 },
+                { name: 'Nasi + Sayur Asem + Tempe', calories: 350, carbs: 40, protein: 15, fat: 10 },
+                { name: 'Nasi + Tumis Tahu', calories: 320, carbs: 38, protein: 18, fat: 8 },
+                { name: 'Nasi + Capcay', calories: 300, carbs: 35, protein: 12, fat: 10 },
+                { name: 'Nasi + Ayam Pop', calories: 420, carbs: 45, protein: 25, fat: 15 },
+                { name: 'Nasi + Empal Gentong', calories: 480, carbs: 42, protein: 28, fat: 20 }
+            ],
+            malam: [
+                { name: 'Nasi + Gado-gado', calories: 350, carbs: 42, protein: 15, fat: 12 },
+                { name: 'Nasi + Sayur Lodeh', calories: 280, carbs: 40, protein: 10, fat: 8 },
+                { name: 'Nasi + Tempe Orek', calories: 320, carbs: 45, protein: 12, fat: 8 },
+                { name: 'Nasi + Pecel', calories: 300, carbs: 38, protein: 12, fat: 10 },
+                { name: 'Nasi + Tumis Kangkung', calories: 250, carbs: 35, protein: 8, fat: 6 },
+                { name: 'Nasi + Sop Ayam', calories: 280, carbs: 30, protein: 20, fat: 8 },
+                { name: 'Nasi + Cah Brokoli', calories: 220, carbs: 25, protein: 10, fat: 5 },
+                { name: 'Nasi + Ikan Asin + Sambal', calories: 300, carbs: 35, protein: 15, fat: 10 },
+                { name: 'Nasi + Telur Balado', calories: 320, carbs: 40, protein: 15, fat: 10 },
+                { name: 'Nasi + Ayam Panggang', calories: 350, carbs: 38, protein: 25, fat: 12 }
+            ],
+            snack: [
+                { name: 'Pisang + Susu', calories: 150, carbs: 25, protein: 8, fat: 3 },
+                { name: 'Roti Tawar', calories: 80, carbs: 15, protein: 3, fat: 1 },
+                { name: 'Kacang Rebus', calories: 120, carbs: 10, protein: 10, fat: 4 },
+                { name: 'Buah Apel', calories: 60, carbs: 15, protein: 0, fat: 0 },
+                { name: 'Yogurt', calories: 100, carbs: 12, protein: 6, fat: 3 },
+                { name: 'Puding', calories: 90, carbs: 20, protein: 2, fat: 1 },
+                { name: 'Kue Lapis', calories: 120, carbs: 18, protein: 2, fat: 4 },
+                { name: 'Kerupuk', calories: 50, carbs: 8, protein: 1, fat: 2 },
+                { name: 'Es Krim', calories: 140, carbs: 20, protein: 3, fat: 5 },
+                { name: 'Biskuit Gandum', calories: 110, carbs: 15, protein: 2, fat: 4 }
+            ]
+        };
+
+        document.getElementById('nutritionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            calculateNutrition();
+        });
+
+        function calculateNutrition() {
+            // Ambil data dari form
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const age = parseInt(document.getElementById('age').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const activity = parseFloat(document.querySelector('input[name="activity"]:checked').value);
+            const goal = document.querySelector('input[name="goal"]:checked').value;
+            const mealsPerDay = parseInt(document.getElementById('meals').value);
+
+            // Hitung BMI
+            const bmi = weight / ((height / 100) ** 2);
+            
+            // Hitung BMR menggunakan rumus Mifflin-St Jeor
+            let bmr;
+            if (gender === 'male') {
+                bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+            } else {
+                bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+            }
+
+            // Hitung TDEE
+            const tdee = bmr * activity;
+
+            // Hitung target kalori berdasarkan tujuan
+            let targetCalories;
+            switch (goal) {
+                case 'lose':
+                    targetCalories = tdee - 500;
+                    break;
+                case 'gain':
+                    targetCalories = tdee + 500;
+                    break;
+                default:
+                    targetCalories = tdee;
+            }
+
+            // Hitung makronutrien (45% karbo, 25% protein, 30% lemak)
+            const carbs = Math.round((targetCalories * 0.45) / 4);
+            const protein = Math.round((targetCalories * 0.25) / 4);
+            const fat = Math.round((targetCalories * 0.30) / 9);
+
+            // Tampilkan hasil
+            displayResults(bmi, bmr, tdee, targetCalories, carbs, protein, fat, mealsPerDay);
+        }
+
+        function displayResults(bmi, bmr, tdee, targetCalories, carbs, protein, fat, mealsPerDay) {
+            // Update nilai
+            document.getElementById('bmi-value').textContent = bmi.toFixed(1);
+            document.getElementById('bmr-value').textContent = Math.round(bmr);
+            document.getElementById('tdee-value').textContent = Math.round(tdee);
+            document.getElementById('target-value').textContent = Math.round(targetCalories);
+            document.getElementById('carbs-value').textContent = carbs + ' gram';
+            document.getElementById('protein-value').textContent = protein + ' gram';
+            document.getElementById('fat-value').textContent = fat + ' gram';
+
+            // Update status BMI
+            const bmiStatus = document.getElementById('bmi-status');
+            if (bmi < 18.5) {
+                bmiStatus.textContent = 'Kurus';
+                bmiStatus.className = 'bmi-status bmi-kurus';
+            } else if (bmi < 25) {
+                bmiStatus.textContent = 'Normal';
+                bmiStatus.className = 'bmi-status bmi-normal';
+            } else if (bmi < 30) {
+                bmiStatus.textContent = 'Gemuk';
+                bmiStatus.className = 'bmi-status bmi-gemuk';
+            } else {
+                bmiStatus.textContent = 'Obesitas';
+                bmiStatus.className = 'bmi-status bmi-obesitas';
+            }
+
+            // Generate menu
+            generateMealPlan(targetCalories, mealsPerDay);
+
+            // Tampilkan hasil
+            document.getElementById('results').classList.add('show');
+        }
+
+        function generateMealPlan(targetCalories, mealsPerDay) {
+            const mealSchedule = document.getElementById('meal-schedule');
+            mealSchedule.innerHTML = '';
+
+            let calorieDistribution;
+            switch (mealsPerDay) {
+                case 3: // 3 makan + 2 snack
+                    calorieDistribution = [
+                        { type: 'sarapan', percentage: 0.25 },
+                        { type: 'snack', percentage: 0.10 },
+                        { type: 'siang', percentage: 0.35 },
+                        { type: 'snack', percentage: 0.05 },
+                        { type: 'malam', percentage: 0.25 }
+                    ];
+                    break;
+                case 4: // 4 makan + 1 snack
+                    calorieDistribution = [
+                        { type: 'sarapan', percentage: 0.25 },
+                        { type: 'siang', percentage: 0.30 },
+                        { type: 'snack', percentage: 0.10 },
+                        { type: 'malam', percentage: 0.25 },
+                        { type: 'snack', percentage: 0.10 }
+                    ];
+                    break;
+                case 5: // 5 makan kecil
+                    calorieDistribution = [
+                        { type: 'sarapan', percentage: 0.20 },
+                        { type: 'snack', percentage: 0.15 },
+                        { type: 'siang', percentage: 0.30 },
+                        { type: 'snack', percentage: 0.15 },
+                        { type: 'malam', percentage: 0.20 }
+                    ];
+                    break;
+                case 6: // 6 makan sangat kecil
+                    calorieDistribution = [
+                        { type: 'sarapan', percentage: 0.20 },
+                        { type: 'snack', percentage: 0.10 },
+                        { type: 'siang', percentage: 0.25 },
+                        { type: 'snack', percentage: 0.15 },
+                        { type: 'malam', percentage: 0.20 },
+                        { type: 'snack', percentage: 0.10 }
+                    ];
+                    break;
+            }
+
+            // Generate menu berdasarkan distribusi kalori
+            calorieDistribution.forEach((meal, index) => {
+                const targetMealCalories = Math.round(targetCalories * meal.percentage);
+                let selectedFoods = getFoodCombination(meal.type, targetMealCalories);
+
+                const mealDiv = document.createElement('div');
+                mealDiv.className = 'meal-time';
+                
+                const mealName = getMealName(meal.type, index);
+                let mealItemsHTML = '';
+                
+                let totalCalories = 0;
+                let totalCarbs = 0;
+                let totalProtein = 0;
+                let totalFat = 0;
+                
+                selectedFoods.forEach(food => {
+                    mealItemsHTML += `
+                        <div class="meal-item">
+                            <div class="meal-item-name">${food.name}</div>
+                            <div class="meal-item-details">
+                                ${food.calories} kkal | 
+                                Karbo: ${food.carbs}g | 
+                                Protein: ${food.protein}g | 
+                                Lemak: ${food.fat}g
+                            </div>
+                        </div>
+                    `;
+                    
+                    totalCalories += food.calories;
+                    totalCarbs += food.carbs;
+                    totalProtein += food.protein;
+                    totalFat += food.fat;
+                });
+                
+                mealDiv.innerHTML = `
+                    <h4>${mealName} (Target: ${targetMealCalories} kkal | Total: ${totalCalories} kkal)</h4>
+                    <div class="meal-items">${mealItemsHTML}</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        Total: Karbo ${totalCarbs}g | Protein ${totalProtein}g | Lemak ${totalFat}g
+                    </div>
+                `;
+                
+                mealSchedule.appendChild(mealDiv);
+            });
+        }
+
+        function getFoodCombination(category, targetCalories) {
+            const foods = [...foodDatabase[category]]; // Salin array untuk menghindari modifikasi langsung
+            const combinations = [];
+            
+            // Acak urutan makanan untuk variasi
+            foods.sort(() => Math.random() - 0.5);
+            
+            // Coba kombinasi 1-3 makanan
+            for (let i = 0; i < Math.min(3, foods.length); i++) {
+                const currentFood = foods[i];
+                
+                // Jika makanan sendiri sudah mendekati target
+                if (Math.abs(currentFood.calories - targetCalories) <= 50) {
+                    return [currentFood];
+                }
+                
+                // Cari pasangan yang cocok
+                for (let j = i + 1; j < foods.length; j++) {
+                    const combinedCalories = currentFood.calories + foods[j].calories;
+                    if (Math.abs(combinedCalories - targetCalories) <= 100) {
+                        return [currentFood, foods[j]];
+                    }
+                }
+            }
+            
+            // Jika tidak menemukan kombinasi yang pas, kembalikan makanan tunggal terdekat
+            let closestFood = foods[0];
+            let smallestDiff = Math.abs(foods[0].calories - targetCalories);
+            
+            for (let food of foods) {
+                const diff = Math.abs(food.calories - targetCalories);
+                if (diff < smallestDiff) {
+                    smallestDiff = diff;
+                    closestFood = food;
+                }
+            }
+            
+            return [closestFood];
+        }
+
+        function getMealName(mealType, index) {
+            const names = {
+                'sarapan': '🌅 Sarapan',
+                'siang': '🌞 Makan Siang',
+                'malam': '🌙 Makan Malam',
+                'snack': ['🍎 Snack Pagi', '🍏 Snack Sore', '🍊 Snack Malam'][index % 3] || '🍎 Snack'
+            };
+            return names[mealType] || '🍽️ Makan';
+        }
+    </script>
+</body>
+</html>
